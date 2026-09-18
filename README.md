@@ -22,6 +22,14 @@ uv sync  # or alternatively pip install flask gunicorn
 gunicorn main:app
 ```
 
+or
+
+```bash
+source venv/bin/activate
+pip install python-dotenv
+flask --app main run --debug --port 5000
+```
+
 Your Flask application is now available at `http://localhost:3000`.
 
 ## One-Click Deploy
