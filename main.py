@@ -155,3 +155,245 @@ def read_root():
     </body>
     </html>
     """
+
+@app.get("/api/docs")
+def api_docs():
+    return """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>NAP Anniversary Event — API Docs</title>
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+                background-color: #000000; color: #ffffff; line-height: 1.6;
+            }
+            header {
+                padding: 2.5rem 2rem 1.5rem; max-width: 900px; margin: 0 auto;
+                border-bottom: 1px solid #222222;
+            }
+            header h1 { font-size: 1.75rem; margin-bottom: 0.4rem; }
+            header p { color: #888888; font-size: 0.9rem; }
+            main { max-width: 900px; margin: 0 auto; padding: 2rem; }
+            .endpoint {
+                background-color: #111111; border: 1px solid #333333; border-radius: 8px;
+                padding: 1.5rem; margin-bottom: 1.5rem;
+            }
+            .endpoint-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+            .method {
+                font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 4px;
+                letter-spacing: 0.03em;
+            }
+            .method.get { background-color: #1e3a2e; color: #4ade80; }
+            .method.post { background-color: #1e2a3a; color: #60a5fa; }
+            .path { font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 0.95rem; color: #ffffff; }
+            .auth-badge {
+                font-size: 0.7rem; color: #fbbf24; border: 1px solid #4a3c1a; background-color: #1a1608;
+                padding: 0.15rem 0.5rem; border-radius: 4px; margin-left: auto;
+            }
+            .desc { color: #aaaaaa; font-size: 0.875rem; margin-bottom: 1rem; }
+            h4 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #888888; margin: 0.9rem 0 0.4rem; }
+            table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 0.5rem; }
+            th, td { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid #222222; }
+            th { color: #888888; font-weight: 500; }
+            td code { font-family: 'SF Mono', Monaco, Consolas, monospace; color: #93c5fd; }
+            pre {
+                background-color: #0a0a0a; border: 1px solid #2a2a2a; border-radius: 6px;
+                padding: 1rem; overflow-x: auto; font-size: 0.8rem; margin-top: 0.4rem;
+            }
+            code.block { font-family: 'SF Mono', Monaco, Consolas, monospace; color: #d1d5db; white-space: pre; }
+            nav {
+                position: sticky; top: 0; background: #000000; border-bottom: 1px solid #222222;
+                padding: 0.75rem 2rem; display: flex; gap: 1rem; flex-wrap: wrap; z-index: 10;
+                justify-content: center;
+            }
+            nav a { color: #888888; font-size: 0.8rem; text-decoration: none; }
+            nav a:hover { color: #ffffff; }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>NAP Anniversary Event API</h1>
+            <p>Reference for frontend integration. Unless noted "No auth", every endpoint requires a Supabase JWT in <code style="color:#93c5fd">Authorization: Bearer &lt;token&gt;</code>.</p>
+        </header>
+
+        <nav>
+            <a href="#departments">Departments</a>
+            <a href="#participants">Participants</a>
+            <a href="#register">Register</a>
+            <a href="#profile-picture">Profile Picture</a>
+            <a href="#post-create">Create Post</a>
+            <a href="#post-list">List Posts</a>
+            <a href="#like">Like Post</a>
+        </nav>
+
+        <main>
+
+            <div class="endpoint" id="departments">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/departments</span>
+                    <span class="auth-badge">Auth required</span>
+                </div>
+                <p class="desc">Returns all departments.</p>
+                <h4>Response 200</h4>
+                <pre><code class="block">[
+  { "id": "3f2b1a10-...", "name": "IT" },
+  { "id": "7c9e4d20-...", "name": "Trademark" }
+]</code></pre>
+            </div>
+
+            <div class="endpoint" id="participants">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/participants</span>
+                    <span class="auth-badge">Auth required</span>
+                </div>
+                <p class="desc">Returns participants, optionally filtered by department.</p>
+                <h4>Query params</h4>
+                <table>
+                    <tr><th>Param</th><th>Type</th><th>Required</th><th>Notes</th></tr>
+                    <tr><td><code>filter</code></td><td>string</td><td>No</td><td>Department ID to filter by</td></tr>
+                </table>
+                <h4>Response 200</h4>
+                <pre><code class="block">[
+  {
+    "id": "uuid",
+    "first_name": "Jane",
+    "last_name": "Doe",
+    "email": "jane@example.com",
+    "birthday": "1990-01-01",
+    "gender": "female",
+    "department_id": 1,
+    "profile_path": "uuid/profile.jpg",
+    "access_level": "guest"
+  }
+]</code></pre>
+            </div>
+
+            <div class="endpoint" id="register">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/register</span>
+                    <span class="auth-badge">Auth required</span>
+                </div>
+                <p class="desc">Creates a new auth user (Supabase Admin API). The participant row is auto-created via the <code style="color:#93c5fd">on_auth_user_created</code> DB trigger. Temp password is derived from last name + birthday.</p>
+                <h4>Body (JSON)</h4>
+                <table>
+                    <tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr>
+                    <tr><td><code>first_name</code></td><td>string</td><td>Yes</td><td></td></tr>
+                    <tr><td><code>last_name</code></td><td>string</td><td>Yes</td><td>Used to derive temp password</td></tr>
+                    <tr><td><code>email</code></td><td>string</td><td>Yes</td><td></td></tr>
+                    <tr><td><code>birthday</code></td><td>string</td><td>Yes</td><td>Format <code>YYYY-MM-DD</code></td></tr>
+                    <tr><td><code>department_id</code></td><td>uuid</td><td>Yes</td><td>Must exist in <code>departments</code></td></tr>
+                    <tr><td><code>gender</code></td><td>string</td><td>No</td><td><code>"male"</code>, <code>"female"</code>, or omitted</td></tr>
+                </table>
+                <h4>Response 201</h4>
+                <pre><code class="block">{ "message": "Registered successfully" }</code></pre>
+                <h4>Errors 400</h4>
+                <pre><code class="block">{ "error": "Missing required fields: email, department_id" }
+{ "error": "birthday must be in YYYY-MM-DD format" }
+{ "error": "gender must be 'male', 'female', or omitted" }
+{ "error": "Invalid department_id" }</code></pre>
+            </div>
+
+            <div class="endpoint" id="profile-picture">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/profile-picture</span>
+                    <span class="auth-badge">Auth required</span>
+                </div>
+                <p class="desc">Uploads/replaces the authenticated user's profile picture.</p>
+                <h4>Body (multipart/form-data)</h4>
+                <table>
+                    <tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr>
+                    <tr><td><code>file</code></td><td>file</td><td>Yes</td><td>Image file; must pass <code>allowed_file()</code> extension check</td></tr>
+                </table>
+                <h4>Response 200</h4>
+                <pre><code class="block">{
+  "message": "Profile picture updated",
+  "profile_path": "uuid/profile.jpg",
+  "data": [ ... ]
+}</code></pre>
+            </div>
+
+            <div class="endpoint" id="post-create">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/post</span>
+                    <span class="auth-badge">Auth required</span>
+                </div>
+                <p class="desc">Creates a post with 1+ images. Rolls back the post and any uploaded images on failure.</p>
+                <h4>Body (multipart/form-data)</h4>
+                <table>
+                    <tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr>
+                    <tr><td><code>caption</code></td><td>string</td><td>No</td><td></td></tr>
+                    <tr><td><code>images</code></td><td>file[]</td><td>Yes</td><td>1–MAX_POST_IMAGES files, repeat the field for each image</td></tr>
+                </table>
+                <h4>Response 201</h4>
+                <pre><code class="block">{
+  "message": "Post created",
+  "post_id": "uuid",
+  "images": [ { "id": 1, "post_id": "uuid", "image_path": "uuid/postid/0.jpg" } ]
+}</code></pre>
+                <h4>Errors 400</h4>
+                <pre><code class="block">{ "error": "At least 1 image is required" }
+{ "error": "A maximum of N images is allowed" }
+{ "error": "Invalid image type: photo.exe" }</code></pre>
+            </div>
+
+            <div class="endpoint" id="post-list">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/post</span>
+                    <span class="auth-badge">Auth required</span>
+                </div>
+                <p class="desc">Returns a paginated feed of posts, newest first, with author, images, like count, comment count, and whether the current user liked each post.</p>
+                <h4>Query params</h4>
+                <table>
+                    <tr><th>Param</th><th>Type</th><th>Required</th><th>Notes</th></tr>
+                    <tr><td><code>limit</code></td><td>int</td><td>No</td><td>Default 20, capped at 100</td></tr>
+                    <tr><td><code>offset</code></td><td>int</td><td>No</td><td>Default 0</td></tr>
+                </table>
+                <h4>Response 200</h4>
+                <pre><code class="block">{
+  "data": [
+    {
+      "id": "uuid",
+      "author": { "id": "uuid", "first_name": "Jane", "last_name": "Doe", "profile_url": "uuid/profile.jpg" },
+      "images": [ { "id": 1, "url": "uuid/postid/0.jpg" } ],
+      "caption": "Hello!",
+      "likes_count": 3,
+      "comments_count": 1,
+      "liked_by_me": true
+    }
+  ]
+}</code></pre>
+            </div>
+
+            <div class="endpoint" id="like">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/like</span>
+                    <span class="auth-badge">Auth required</span>
+                </div>
+                <p class="desc">Likes a post on behalf of the current user. A repeat like on the same post fails (composite primary key conflict).</p>
+                <h4>Body (JSON)</h4>
+                <table>
+                    <tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr>
+                    <tr><td><code>post_id</code></td><td>string</td><td>Yes</td><td></td></tr>
+                </table>
+                <h4>Response 201</h4>
+                <pre><code class="block">{ "message": "Post liked", "data": [ ... ] }</code></pre>
+                <h4>Errors 400</h4>
+                <pre><code class="block">{ "error": "post_id is required" }
+{ "error": "Already liked or invalid post_id", "detail": "..." }</code></pre>
+            </div>
+
+        </main>
+    </body>
+    </html>
+    """
